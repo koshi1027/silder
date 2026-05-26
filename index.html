@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Directors | Marquee Hover Preview</title>
+
+  <style>
+    :root {
+      --bg: #f1f1f1;
+      --text: #000;
+      --muted-text: rgba(0, 0, 0, .18);
+      --active-text: #fff;
+      --header-h: 112px;
+      --speed-top: 58s;
+      --speed-middle: 64s;
+      --speed-bottom: 60s;
+      --ease: cubic-bezier(.22, 1, .36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* 滿版背景圖層 */
+    .image-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: #111;
+      opacity: 0;
+      transition: opacity .55s var(--ease);
+    }
+
+    body.is-hovering .image-stage {
+      opacity: 1;
+    }
+
+    .director-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transform: scale(1.035);
+      transition:
+        opacity .65s var(--ease),
+        transform 1.2s var(--ease);
+    }
+
+    .director-bg.is-active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .image-shade {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .12);
+    }
+
+    /* Header */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 30;
+      width: 100%;
+      height: var(--header-h);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: start;
+      padding: 42px 76px 0;
+      pointer-events: none;
+    }
+
+    .logo,
+    .main-nav {
+      pointer-events: auto;
+    }
+
+    .logo {
+      grid-column: 1;
+      justify-self: center;
+      display: inline-flex;
+      align-items: center;
+      font-size: clamp(28px, 2.35vw, 42px);
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      line-height: 1;
+      color: #191919;
+      transform: translateX(8vw);
+    }
+
+    .logo span {
+      display: inline-block;
+    }
+
+    .logo .yellow { color: #f4d800; }
+    .logo .blue { color: #63a7ff; }
+    .logo .pink { color: #ff4f9b; }
+
+    .main-nav {
+      grid-column: 3;
+      justify-self: center;
+      display: flex;
+      gap: 70px;
+      padding-top: 3px;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -.02em;
+      color: #000;
+    }
+
+    .main-nav a {
+      position: relative;
+      padding-bottom: 4px;
+    }
+
+    .main-nav a.is-active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+    }
+
+    body.is-hovering .main-nav,
+    body.is-hovering .logo {
+      color: #111;
+    }
+
+    /* Marquee */
+    .marquee-wrap {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 36px;
+      padding-top: var(--header-h);
+      mix-blend-mode: normal;
+    }
+
+    .marquee-row {
+      width: 100%;
+      overflow: visible;
+      white-space: nowrap;
+    }
+
+    .track {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      will-change: transform;
+      color: var(--text);
+    }
+
+    .group {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .director-link,
+    .sep {
+      display: inline-block;
+      font-size: clamp(64px, 6.35vw, 124px);
+      font-weight: 800;
+      letter-spacing: -0.065em;
+      line-height: .9;
+      color: currentColor;
+    }
+
+    .director-link {
+      margin: 0 28px;
+      cursor: pointer;
+      transition:
+        color .35s var(--ease),
+        opacity .35s var(--ease),
+        transform .35s var(--ease);
+    }
+
+    .sep {
+      margin: 0 9px;
+      font-weight: 400;
+      letter-spacing: -.08em;
+    }
+
+    body.is-hovering .track {
+      color: var(--muted-text);
+    }
+
+    body.is-hovering .director-link.is-active {
+      color: var(--active-text);
+      opacity: 1;
+      transform: translateY(-2px);
+      text-shadow: 0 8px 26px rgba(0, 0, 0, .16);
+    }
+
+    body.is-hovering .sep {
+      color: rgba(0, 0, 0, .28);
+    }
+
+    .move-left {
+      animation: moveLeft linear infinite;
+    }
+
+    .move-right {
+      animation: moveRight linear infinite;
+    }
+
+    .speed-top { animation-duration: var(--speed-top); }
+    .speed-middle { animation-duration: var(--speed-middle); }
+    .speed-bottom { animation-duration: var(--speed-bottom); }
+
+    @keyframes moveLeft {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @keyframes moveRight {
+      from { transform: translateX(-50%); }
+      to { transform: translateX(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .track {
+        animation: none !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --header-h: 120px;
+      }
+
+      .site-header {
+        height: auto;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 28px 24px 0;
+      }
+
+      .logo {
+        transform: none;
+        font-size: 30px;
+      }
+
+      .main-nav {
+        gap: 22px;
+        font-size: 13px;
+      }
+
+      .marquee-wrap {
+        gap: 24px;
+      }
+
+      .director-link,
+      .sep {
+        font-size: clamp(46px, 14vw, 82px);
+      }
+
+      .director-link {
+        margin: 0 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <section class="image-stage" aria-hidden="true">
+      <!-- 每個導演一張圖：把 src 換成你自己的圖片即可 -->
+      <img class="director-bg" data-name="sarawit" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="nittaya" src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="satit" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="thanonchai" src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="numthong" src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="thanyarak" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="pisut" src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="withit" src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="phalat" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="kanin" src="https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="rong" src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="kornkanok" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <img class="director-bg" data-name="prateep" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=90" alt="" />
+      <div class="image-shade"></div>
+    </section>
+
+   <!-- <header class="site-header">
+      <a class="logo" href="#" aria-label="PHENOMENA">
+        <span>P</span><span class="yellow">H</span><span>E</span><span>N</span><span class="blue">O</span><span>M</span><span>E</span><span class="pink">N</span><span>A</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a href="#">Home</a>
+        <a class="is-active" href="#">Directors</a>
+        <a href="#">Info</a>
+      </nav>
+    </header> -->
+
+    <main class="marquee-wrap" aria-label="Directors">
+      <!-- 上排：往右 -->
+      <section class="marquee-row">
+        <div class="track move-right speed-top">
+          <div class="group">
+            <a class="director-link" data-name="sarawit" href="#">Sarawit</a><span class="sep">||</span>
+            <a class="director-link" data-name="nittaya" href="#">Nittaya</a><span class="sep">||</span>
+            <a class="director-link" data-name="satit" href="#">Satit</a><span class="sep">||</span>
+            <a class="director-link" data-name="thanonchai" href="#">Thanonchai</a><span class="sep">||</span>
+            <a class="director-link" data-name="numthong" href="#">Numthong</a><span class="sep">||</span>
+          </div>
+          <div class="group" aria-hidden="true">
+            <a class="director-link" data-name="sarawit" href="#">Sarawit</a><span class="sep">||</span>
+            <a class="director-link" data-name="nittaya" href="#">Nittaya</a><span class="sep">||</span>
+            <a class="director-link" data-name="satit" href="#">Satit</a><span class="sep">||</span>
+            <a class="director-link" data-name="thanonchai" href="#">Thanonchai</a><span class="sep">||</span>
+            <a class="director-link" data-name="numthong" href="#">Numthong</a><span class="sep">||</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 中排：往左 -->
+      <section class="marquee-row">
+        <div class="track move-left speed-middle">
+          <div class="group">
+            <a class="director-link" data-name="thanyarak" href="#">Thanyarak</a><span class="sep">||</span>
+            <a class="director-link" data-name="pisut" href="#">Pisut</a><span class="sep">||</span>
+            <a class="director-link" data-name="withit" href="#">Withit</a><span class="sep">||</span>
+            <a class="director-link" data-name="phalat" href="#">Phalat</a><span class="sep">||</span>
+            <a class="director-link" data-name="kanin" href="#">Kanin</a><span class="sep">||</span>
+            <a class="director-link" data-name="rong" href="#">Rong</a><span class="sep">||</span>
+          </div>
+          <div class="group" aria-hidden="true">
+            <a class="director-link" data-name="thanyarak" href="#">Thanyarak</a><span class="sep">||</span>
+            <a class="director-link" data-name="pisut" href="#">Pisut</a><span class="sep">||</span>
+            <a class="director-link" data-name="withit" href="#">Withit</a><span class="sep">||</span>
+            <a class="director-link" data-name="phalat" href="#">Phalat</a><span class="sep">||</span>
+            <a class="director-link" data-name="kanin" href="#">Kanin</a><span class="sep">||</span>
+            <a class="director-link" data-name="rong" href="#">Rong</a><span class="sep">||</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 下排：往右 -->
+      <section class="marquee-row">
+        <div class="track move-right speed-bottom">
+          <div class="group">
+            <a class="director-link" data-name="kornkanok" href="#">Kornkanok</a><span class="sep">||</span>
+            <a class="director-link" data-name="prateep" href="#">Prateep</a><span class="sep">||</span>
+            <a class="director-link" data-name="kornkanok" href="#">Kornkanok</a><span class="sep">||</span>
+            <a class="director-link" data-name="prateep" href="#">Prateep</a><span class="sep">||</span>
+          </div>
+          <div class="group" aria-hidden="true">
+            <a class="director-link" data-name="kornkanok" href="#">Kornkanok</a><span class="sep">||</span>
+            <a class="director-link" data-name="prateep" href="#">Prateep</a><span class="sep">||</span>
+            <a class="director-link" data-name="kornkanok" href="#">Kornkanok</a><span class="sep">||</span>
+            <a class="director-link" data-name="prateep" href="#">Prateep</a><span class="sep">||</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const body = document.body;
+    const links = [...document.querySelectorAll('.director-link')];
+    const backgrounds = [...document.querySelectorAll('.director-bg')];
+
+    function activateDirector(name) {
+      body.classList.add('is-hovering');
+
+      links.forEach((link) => {
+        link.classList.toggle('is-active', link.dataset.name === name);
+      });
+
+      backgrounds.forEach((image) => {
+        image.classList.toggle('is-active', image.dataset.name === name);
+      });
+    }
+
+    function clearDirector() {
+      body.classList.remove('is-hovering');
+      links.forEach((link) => link.classList.remove('is-active'));
+      backgrounds.forEach((image) => image.classList.remove('is-active'));
+    }
+
+    links.forEach((link) => {
+      link.addEventListener('mouseenter', () => activateDirector(link.dataset.name));
+      link.addEventListener('focus', () => activateDirector(link.dataset.name));
+    });
+
+    document.querySelector('.marquee-wrap').addEventListener('mouseleave', clearDirector);
+    document.querySelector('.marquee-wrap').addEventListener('focusout', (event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) clearDirector();
+    });
+  </script>
+</body>
+</html>
