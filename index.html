@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -124,9 +125,17 @@
       display: inline-block;
     }
 
-    .logo .yellow { color: #f4d800; }
-    .logo .blue { color: #63a7ff; }
-    .logo .pink { color: #ff4f9b; }
+    .logo .yellow {
+      color: #f4d800;
+    }
+
+    .logo .blue {
+      color: #63a7ff;
+    }
+
+    .logo .pink {
+      color: #ff4f9b;
+    }
 
     .main-nav {
       grid-column: 3;
@@ -260,18 +269,36 @@
       animation: moveRight linear infinite;
     }
 
-    .speed-top { animation-duration: var(--speed-top); }
-    .speed-middle { animation-duration: var(--speed-middle); }
-    .speed-bottom { animation-duration: var(--speed-bottom); }
+    .speed-top {
+      animation-duration: var(--speed-top);
+    }
+
+    .speed-middle {
+      animation-duration: var(--speed-middle);
+    }
+
+    .speed-bottom {
+      animation-duration: var(--speed-bottom);
+    }
 
     @keyframes moveLeft {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
     }
 
     @keyframes moveRight {
-      from { transform: translateX(-50%); }
-      to { transform: translateX(0); }
+      from {
+        transform: translateX(-50%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -320,9 +347,11 @@
 </head>
 
 <body>
-    <div class="page">
+  <div class="page">
+    <!-- 滿版背景圖層（會由 JavaScript 動態生成圖片） -->
+    <div class="image-stage"></div>
 
-   <!-- <header class="site-header">
+    <!-- <header class="site-header">
       <a class="logo" href="#" aria-label="PHENOMENA">
         <span>P</span><span class="yellow">H</span><span>E</span><span>N</span><span class="blue">O</span><span>M</span><span>E</span><span class="pink">N</span><span>A</span>
       </a>
@@ -353,19 +382,33 @@
   </div>
 
   <script>
-    // 【圖片資料庫說明】
-    // 若未來要讓每一張圖片點擊後跳轉到不同的網址，請直接修改下方對應圖片物件的 "url" 屬性。
-    // 例如：將 'https://www.google.com.tw/index.html' 改為您想要的網址即可。
+    // ==========================================
+    // 【圖片資料庫設定說明（後續要更改圖請修改此處）】
+    // ==========================================
+    // 若後續要更改跑馬燈圖片、懸停背景圖片、新增圖片或變更點擊連結，請直接編輯下方 imagesData 陣列項目。
+    //
+    // 每個圖片物件包含以下屬性：
+    //   1. name: 圖片的唯一識別名稱（例如：'img1'，請勿重複）
+    //   2. src:  【跑馬燈顯示】的圖片路徑（例如：'img/跑馬燈圖.jpg'）
+    //   3. bg:   【滑鼠滑過時背景顯示】的圖片路徑（例如：'img/背景大圖.jpg'）。若未設定此欄位，將預設使用跑馬燈的 src 圖片。
+    //   4. url:  點擊圖片後會跳轉的連結網址（例如：'https://www.your-link.com'）
+    //
+    // 範例：
+    //   - 要讓跑馬燈顯示 A 圖，滑過時背景顯示 B 圖：
+    //     { name: 'img1', src: 'img/A.jpg', bg: 'img/B.jpg', url: 'https://google.com' }
+    //   - 新增圖片項目：在陣列結尾加上一個新物件，例如：
+    //     { name: 'img10', src: 'img/new_src.jpg', bg: 'img/new_bg.jpg', url: 'https://example.com' }
+    // ==========================================
     const imagesData = [
-      { name: 'img1', src: 'img/517b7933f5d090793d5db12475c06_0.jpg', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img2', src: 'img/62363999_10157567576533783_7706675654204325888_o-1_0.jpg', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img3', src: 'img/images515_0.png', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img4', src: 'img/images_0.png', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img5', src: 'img/logo-uwtaiwan_0.jpg', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img6', src: 'img/logo_0.jpg', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img7', src: 'img/pngtree-line-chat-icon-png-image_3584855_0.jpg', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img8', src: 'img/unnamed515_0.png', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img9', src: 'img/淘寶網，標誌［2021年－］_0.jpg', url: 'https://www.google.com.tw/index.html' }
+      { name: 'img1', src: 'img/517b7933f5d090793d5db12475c06_0.jpg', bg: 'https://s.yimg.com/lo/mysterio/api/eaaa9827965024426e8c1ef266d11d82711a9e90e24e6b9d0e9a5c85ef6cf923/lightyear_networkapi/resizefill_w960;quality_80;format_webp/https:%2F%2Fd29szjachogqwa.cloudfront.net%2Fimages%2Fuser-uploaded%2Fupload_5740.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img2', src: 'img/62363999_10157567576533783_7706675654204325888_o-1_0.jpg', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img3', src: 'img/images515_0.png', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img4', src: 'img/images_0.png', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img5', src: 'img/logo-uwtaiwan_0.jpg', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img6', src: 'img/logo_0.jpg', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img7', src: 'img/pngtree-line-chat-icon-png-image_3584855_0.jpg', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img8', src: 'img/unnamed515_0.png', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img9', src: 'img/淘寶網，標誌［2021年－］_0.jpg', bg: 'https://img.ltn.com.tw/Upload/news/600/2023/10/02/phpiKTDBN.jpg', url: 'https://www.google.com.tw/index.html' }
     ];
 
     function shuffle(array) {
@@ -381,7 +424,7 @@
       const tracks = document.querySelectorAll('.track');
       tracks.forEach((track) => {
         const shuffled = shuffle(imagesData);
-        
+
         let groupHtml = '<div class="group">';
         shuffled.forEach((img) => {
           groupHtml += `<a class="director-link" data-name="${img.name}" href="${img.url}" target="_blank" rel="noopener noreferrer"><img src="${img.src}" alt="" /></a><span class="sep">||</span>`;
@@ -398,29 +441,63 @@
       });
     }
 
+    // 動態將 imagesData 中的圖片渲染為滿版背景圖片元素
+    function renderBackgrounds() {
+      const stage = document.querySelector('.image-stage');
+      if (!stage) return;
+
+      let html = '';
+      imagesData.forEach((img) => {
+        // 使用 img.bg 做為背景圖片來源。若無設定，則使用原本跑馬燈的 img.src
+        html += `<img class="director-bg" data-name="${img.name}" src="${img.bg || img.src}" alt="" />`;
+      });
+      // 加上陰影遮罩
+      html += '<div class="image-shade"></div>';
+      stage.innerHTML = html;
+    }
+
     // 渲染跑馬燈內容
     renderMarquees();
+    // 渲染背景圖片內容
+    renderBackgrounds();
 
     const body = document.body;
-    const links = [...document.querySelectorAll('.director-link')];
+    let links = [];
+    let bgImages = [];
+
+    // 初始化事件綁定
+    function initEvents() {
+      links = [...document.querySelectorAll('.director-link')];
+      bgImages = [...document.querySelectorAll('.director-bg')];
+
+      links.forEach((link) => {
+        link.addEventListener('mouseenter', () => activateDirector(link.dataset.name));
+        link.addEventListener('focus', () => activateDirector(link.dataset.name));
+      });
+    }
 
     function activateDirector(name) {
       body.classList.add('is-hovering');
 
+      // 切換跑馬燈圖片的 active 狀態
       links.forEach((link) => {
         link.classList.toggle('is-active', link.dataset.name === name);
+      });
+
+      // 切換背景圖片的 active 狀態，使對應圖片淡入顯示
+      bgImages.forEach((bg) => {
+        bg.classList.toggle('is-active', bg.dataset.name === name);
       });
     }
 
     function clearDirector() {
       body.classList.remove('is-hovering');
       links.forEach((link) => link.classList.remove('is-active'));
+      bgImages.forEach((bg) => bg.classList.remove('is-active'));
     }
 
-    links.forEach((link) => {
-      link.addEventListener('mouseenter', () => activateDirector(link.dataset.name));
-      link.addEventListener('focus', () => activateDirector(link.dataset.name));
-    });
+    // 初始化事件
+    initEvents();
 
     document.querySelector('.marquee-wrap').addEventListener('mouseleave', clearDirector);
     document.querySelector('.marquee-wrap').addEventListener('focusout', (event) => {
@@ -428,4 +505,5 @@
     });
   </script>
 </body>
+
 </html>
