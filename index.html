@@ -216,6 +216,7 @@
       font-weight: 400;
       letter-spacing: -.08em;
       vertical-align: middle;
+      transition: opacity .35s var(--ease);
     }
 
     body.is-hovering .track {
@@ -223,7 +224,7 @@
     }
 
     body.is-hovering .director-link {
-      opacity: 0.35;
+      opacity: 0;
     }
 
     body.is-hovering .director-link.is-active {
@@ -234,7 +235,7 @@
     }
 
     body.is-hovering .sep {
-      color: rgba(255, 255, 255, 0.15);
+      opacity: 0;
     }
 
     .move-left {
@@ -319,11 +320,62 @@
         margin: 0 18px;
       }
     }
+
+    /* 懸停背景圖樣式 */
+    .hover-bg-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1; /* 高於原本背景，但低於 marquee-wrap */
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.6s var(--ease);
+    }
+
+    .hover-bg-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transform: scale(1.08);
+      transition: transform 0.6s var(--ease);
+      filter: blur(4px); /* 微弱模糊，提升視覺電影感並保護文字可讀性 */
+    }
+
+    .hover-bg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6); /* 暗色遮罩保護前景色 */
+    }
+
+    /* 當 body 處於懸停狀態時 */
+    body.is-hovering .hover-bg-container {
+      opacity: 1;
+    }
+
+    body.is-hovering .hover-bg-image {
+      transform: scale(1);
+    }
   </style>
 </head>
 
 <body>
   <div class="page">
+    <!-- 懸停背景圖容器 -->
+    <div class="hover-bg-container">
+      <div class="hover-bg-image"></div>
+      <div class="hover-bg-overlay"></div>
+    </div>
 
 
     <!-- <header class="site-header">
@@ -373,15 +425,15 @@
     //     { name: 'img10', src: 'img/new_src.jpg', hoverSrc: 'img/new_hover.jpg', url: 'https://example.com' }
     // ==========================================
     const imagesData = [
-      { name: 'img1', src: 'img/517b7933f5d090793d5db12475c06_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img2', src: 'img/62363999_10157567576533783_7706675654204325888_o-1_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img3', src: 'img/images515_0.png', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img4', src: 'img/images_0.png', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img5', src: 'img/logo-uwtaiwan_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img6', src: 'img/logo_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img7', src: 'img/pngtree-line-chat-icon-png-image_3584855_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img8', src: 'img/unnamed515_0.png', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' },
-      { name: 'img9', src: 'img/淘寶網，標誌［2021年－］_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'https://www.google.com.tw/index.html' }
+      { name: 'img1', src: 'img/517b7933f5d090793d5db12475c06_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img2', src: 'img/62363999_10157567576533783_7706675654204325888_o-1_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img3', src: 'img/images515_0.png', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img4', src: 'img/images_0.png', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img5', src: 'img/logo-uwtaiwan_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img6', src: 'img/logo_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img7', src: 'img/pngtree-line-chat-icon-png-image_3584855_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img8', src: 'img/unnamed515_0.png', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' },
+      { name: 'img9', src: 'img/淘寶網，標誌［2021年－］_0.jpg', hoverSrc: 'https://tse1.mm.bing.net/th/id/OIP.pHAoxDKCV7bIR8OeFz3ZPQHaHa?cb=thfc1falcon2&rs=1&pid=ImgDetMain&o=7&rm=3', bgSrc: 'https://ibw.bwnet.com.tw/ac_gallery/2025/12/d9e67268-8f9a-5357-0b6e-a061603e20cb_620.jpg', url: 'https://www.google.com.tw/index.html' }
     ];
 
     function shuffle(array) {
@@ -419,6 +471,7 @@
     renderMarquees();
 
     const body = document.body;
+    const hoverBgImage = document.querySelector('.hover-bg-image');
     let links = [];
 
     // 初始化事件綁定
@@ -433,6 +486,12 @@
 
     function activateDirector(name) {
       body.classList.add('is-hovering');
+
+      // 尋找對應的背景圖，並動態設定
+      const imgInfo = imagesData.find(img => img.name === name);
+      if (imgInfo && imgInfo.bgSrc) {
+        hoverBgImage.style.backgroundImage = `url('${imgInfo.bgSrc}')`;
+      }
 
       // 切換跑馬燈圖片的 active 狀態
       links.forEach((link) => {
